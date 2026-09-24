@@ -47,3 +47,9 @@ ENV/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# TrustLens
+Dataset/Processed/
+models/
+_to_delete/
+*.joblib
