@@ -1,0 +1,10 @@
+{
+  "source": "Labelled_Verified Dataset.xlsx",
+  "rows_in": 2017,
+  "rows_out": 1977,
+  "removed": 40,
+  "fake_to_suspicious": 1,
+  "aspect_spelling_fixed": 10,
+  "non_verbal": 27,
+  "manual_fixes_applied": 42
+}

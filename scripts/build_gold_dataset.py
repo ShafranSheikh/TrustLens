@@ -129,6 +129,11 @@ if len(kept):
     note(f'non-verbal rows keeping their annotated language: {sorted(kept["review_id"])}')
 
 # ---------------------------------------------------------------- optional manual fixes
+ALLOWED = {
+    'language_type':      {'English','Sinhala','Singlish','Mixed','Non-verbal'},
+    'sentiment_polarity': {'Positive','Neutral','Negative','Not applicable'},
+    'authenticity':       {'Genuine','Suspicious'},
+}
 applied=0
 if FIXES.exists():
     fx = pd.read_csv(FIXES, dtype=str).fillna('')
@@ -139,7 +144,11 @@ if FIXES.exists():
         if rid not in idx.index: continue
         for col in ['language_type','sentiment_polarity','authenticity']:
             v=str(r.get(col,'')).strip()
-            if v and idx.at[rid,col]=='':          # blanks only
+            if not v: continue
+            if v not in ALLOWED[col]:
+                raise ValueError(f'{FIXES.name}: {rid} has {col}={v!r}; '
+                                 f'allowed values are {sorted(ALLOWED[col])}')
+            if idx.at[rid,col]=='':                # blanks only, never an overwrite
                 df.loc[df['review_id']==rid, col]=v; applied+=1
     note(f'applied manual label fixes from {FIXES.name}', applied)
 else:
@@ -149,8 +158,13 @@ else:
 df['n_chars']=df['review_text'].astype(str).str.len()
 norm=df['review_text'].astype(str).str.replace(r'\s+',' ',regex=True).str.strip().str.lower()
 df['dup_count']=norm.map(norm.value_counts())
-df['group_key']=(df['product_name'].astype(str).str.strip().str.lower()+'||'+norm
-                 ).map(lambda s: hashlib.md5(s.encode()).hexdigest()[:12])
+# Group on normalised TEXT ALONE. Grouping on product+text is infeasible here:
+# generic strings ("good") appear on nearly every product, so the product+text
+# graph collapses into one component holding 95.5% of the corpus and no test set
+# can be carved out. Text leakage is the serious one for a text classifier;
+# product overlap is recorded as a limitation and checked separately by the
+# unseen-product holdout in trustlens.splits.
+df['group_key']=norm.map(lambda s: hashlib.md5(s.encode()).hexdigest()[:12])
 df['has_labels']=((df['language_type']!='')&(df['sentiment_polarity']!='')&
                   (df['authenticity']!='')).map({True:'yes',False:'no'})
 

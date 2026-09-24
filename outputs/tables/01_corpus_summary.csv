@@ -1,0 +1,11 @@
+Measure,Value
+Reviews,1977
+Products,35
+Categories,3
+Distinct review texts,1611
+Fully labelled reviews,1977
+Non-verbal reviews,27
+Median length (characters),33
+Mean length (characters),55
+Reviews under 20 characters,712
+Date range,2020-11-03 to 6 hours ago

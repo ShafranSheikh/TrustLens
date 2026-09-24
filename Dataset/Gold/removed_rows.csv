@@ -1,0 +1,42 @@
+﻿review_id,reason,review_text
+R0128,empty review_text,
+R0287,empty review_text,
+R0288,empty review_text,
+R0466,empty review_text,
+R0615,empty review_text,
+R0616,empty review_text,
+R0620,empty review_text,
+R0632,empty review_text,
+R0914,empty review_text,
+R1051,empty review_text,
+R1179,empty review_text,
+R1180,empty review_text,
+R1252,empty review_text,
+R1255,empty review_text,
+R1262,empty review_text,
+R1352,empty review_text,
+R1469,empty review_text,
+R1470,empty review_text,
+R1503,empty review_text,
+R1504,empty review_text,
+R1505,empty review_text,
+R1804,empty review_text,
+R1805,empty review_text,
+R1806,empty review_text,
+R1807,empty review_text,
+R1848,empty review_text,
+R1849,empty review_text,
+R1912,empty review_text,
+R1913,empty review_text,
+R1915,empty review_text,
+R1917,empty review_text,
+R1918,empty review_text,
+R1980,empty review_text,
+R1997,empty review_text,
+R0036,Tamil script - outside scope,அவர் கூறுகையில் கடந்த ஆண்டு கொரோனா பரவல் காரணமாக பள்ளிகள் மூடப்பட்டன
+R0571,Tamil script - outside scope,நல்லா இருக்கு..
+R1171,Tamil script - outside scope,சூப்பர்
+R1142,romanised Tamil - outside English/Sinhala/Singlish scope,superb dress.... but xl use panravanka 2xl edunka appo thaan ok VA erukkum
+R1311,romanised Tamil - outside English/Sinhala/Singlish scope,"purple oder paninathu
+vaintha thu black.  konjam paathu coriyer potta nallm.🤨"
+R1845,not a review - a date value leaked into the review_text cell,2026-10-10 00:00:00

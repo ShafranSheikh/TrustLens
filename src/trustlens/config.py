@@ -15,7 +15,11 @@ TEST_SIZE = 0.20
 N_FOLDS = 5
 
 LANGUAGES  = ['English', 'Sinhala', 'Singlish', 'Mixed', 'Non-verbal']
-SENTIMENTS = ['Positive', 'Neutral', 'Negative']
+SENTIMENTS = ['Positive', 'Neutral', 'Negative']   # the model's classes
+# Reviews whose text carries no expressible sentiment (emoji only, keyboard mash,
+# bare product words). Annotated as a deliberate decision, not a gap. Excluded
+# from sentiment training; retained for fake detection.
+SENTIMENT_NA = 'Not applicable'
 AUTHENTICITY = ['Genuine', 'Suspicious']
 ASPECTS = ['Product Quality', 'Delivery/Shipping', 'Price/Value',
            'Seller Service', 'Color/Design', 'Packaging', 'Size/Fit']

@@ -1,0 +1,15 @@
+Field,Value,n,Percent
+language_type,English,1536,77.7
+language_type,Sinhala,226,11.4
+language_type,Singlish,170,8.6
+language_type,Non-verbal,23,1.2
+language_type,Mixed,22,1.1
+sentiment_polarity,Positive,1545,78.1
+sentiment_polarity,Negative,239,12.1
+sentiment_polarity,Neutral,160,8.1
+sentiment_polarity,Not applicable,33,1.7
+authenticity,Genuine,1540,77.9
+authenticity,Suspicious,437,22.1
+category,electronics,1009,51.0
+category,fashion,515,26.0
+category,grocery,453,22.9

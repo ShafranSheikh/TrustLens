@@ -1,0 +1,23 @@
+field,value,split,n,pct
+authenticity,Genuine,train,1232,77.9
+authenticity,Suspicious,train,349,22.1
+authenticity,Genuine,test,308,77.8
+authenticity,Suspicious,test,88,22.2
+sentiment_polarity,Positive,train,1236,78.2
+sentiment_polarity,Negative,train,191,12.1
+sentiment_polarity,Neutral,train,128,8.1
+sentiment_polarity,Not applicable,train,26,1.6
+sentiment_polarity,Positive,test,309,78.0
+sentiment_polarity,Negative,test,48,12.1
+sentiment_polarity,Neutral,test,32,8.1
+sentiment_polarity,Not applicable,test,7,1.8
+language_type,English,train,1215,76.9
+language_type,Sinhala,train,186,11.8
+language_type,Singlish,train,140,8.9
+language_type,Non-verbal,train,21,1.3
+language_type,Mixed,train,19,1.2
+language_type,English,test,321,81.1
+language_type,Sinhala,test,40,10.1
+language_type,Singlish,test,30,7.6
+language_type,Mixed,test,3,0.8
+language_type,Non-verbal,test,2,0.5

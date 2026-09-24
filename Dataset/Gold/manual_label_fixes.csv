@@ -1,0 +1,43 @@
+﻿review_id,language_type,sentiment_polarity,authenticity
+R0066,English,Positive,Genuine
+R0071,English,Positive,Genuine
+R0076,Non-verbal,Not applicable,Suspicious
+R0137,Non-verbal,Not applicable,Suspicious
+R0279,Non-verbal,Not applicable,Suspicious
+R0455,English,Not applicable,Suspicious
+R0472,Non-verbal,Not applicable,Suspicious
+R0475,English,Positive,Suspicious
+R0509,Non-verbal,Not applicable,Suspicious
+R0642,English,Not applicable,Suspicious
+R0693,English,Not applicable,Suspicious
+R0824,Sinhala,Positive,Genuine
+R0922,Non-verbal,Not applicable,Suspicious
+R1003,Non-verbal,Not applicable,Suspicious
+R1063,English,Positive,Suspicious
+R1199,Non-verbal,Not applicable,Suspicious
+R1213,Non-verbal,Not applicable,Suspicious
+R1231,Non-verbal,Not applicable,Suspicious
+R1232,English,Neutral,Suspicious
+R1259,Non-verbal,Not applicable,Suspicious
+R1300,Non-verbal,Not applicable,Suspicious
+R1347,Non-verbal,Not applicable,Suspicious
+R1399,English,Not applicable,Suspicious
+R1431,Non-verbal,Not applicable,Suspicious
+R1496,English,Positive,Genuine
+R1540,English,Not applicable,Suspicious
+R1590,English,Not applicable,Suspicious
+R1668,English,Positive,Genuine
+R1767,Non-verbal,Not applicable,Suspicious
+R1782,Non-verbal,Not applicable,Suspicious
+R1829,English,Not applicable,Suspicious
+R1843,English,Not applicable,Suspicious
+R1858,English,Not applicable,Suspicious
+R1864,English,Not applicable,Suspicious
+R1900,Non-verbal,Not applicable,Suspicious
+R1907,Non-verbal,Not applicable,Suspicious
+R1908,Non-verbal,Not applicable,Suspicious
+R1909,Non-verbal,Not applicable,Suspicious
+R1910,Non-verbal,Not applicable,Suspicious
+R1911,Non-verbal,Not applicable,Suspicious
+R1964,Non-verbal,Not applicable,Suspicious
+R2018,English,Positive,Genuine
