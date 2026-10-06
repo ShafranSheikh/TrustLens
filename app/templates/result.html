@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ result.product or 'Result' }} &middot; TrustLens{% endblock %}
+{% block tagline %}{{ result.product }}{% endblock %}
+{% block body %}
+  <p class="meta">
+    {{ result.n }} review{{ '' if result.n == 1 else 's' }}
+    {%- if result.pages %} from {{ result.pages }} page{{ '' if result.pages == 1 else 's' }}{% endif %}
+    {%- if result.platform %} on <code>{{ result.platform }}</code>{% endif %}
+    {%- if result.source %} &middot; read by {{ result.source }}{% endif %}
+    {%- if result.stopped_early %} &middot; stopped at the safety limit, there may be more{% endif %}
+    &nbsp;&nbsp;<a class="back" href="/">check another product</a>
+  </p>
+  {% if result.source == 'generic reader' %}
+    <div class="note-ok">This site is not one the reader has selectors for, so the
+      reviews were found by pattern rather than by knowing the page. Worth a glance
+      at the table below to confirm they came out sensibly.</div>
+  {% endif %}
+  {% include "_result.html" %}
+{% endblock %}

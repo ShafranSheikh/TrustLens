@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Offline fallback &middot; TrustLens{% endblock %}
+{% block tagline %}Offline fallback. Neither of these needs the network or Chrome,
+  so a demonstration always has a route that works. The live version is on the
+  <a href="/">front page</a>.{% endblock %}
+{% block body %}
+  {% if error %}<div class="err">{{ error }}</div>{% endif %}
+  <div class="card">
+    <form method="post" id="f">
+      <input type="hidden" name="mode" id="mode" value="{{ mode }}">
+      <div class="tabs">
+        <a class="{{ 'on' if mode!='text' }}" data-m="product"
+           onclick="pick('product');return false">From the dataset</a>
+        <a class="{{ 'on' if mode=='text' }}" data-m="text"
+           onclick="pick('text');return false">Reviews I type</a>
+      </div>
+      <div id="p-product" {% if mode=='text' %}style="display:none"{% endif %}>
+        <label for="product">Pick a product from the annotated corpus</label>
+        <select name="product" id="product">
+          {% for name, cat, n in products %}
+            <option value="{{ name }}" {% if chosen==name %}selected{% endif %}>
+              {{ name[:64] }} — {{ n }} reviews ({{ cat }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div id="p-text" {% if mode!='text' %}style="display:none"{% endif %}>
+        <label for="reviews">Paste reviews, one per line</label>
+        <textarea name="reviews" id="reviews"
+          placeholder="5 | Great product, arrived fast&#10;5 | stopped working after two days&#10;1 | good quality thanks">{{ pasted }}</textarea>
+        <p class="hint">Start each line with the rating (1&ndash;5), then a vertical
+           bar, then the review.</p>
+      </div>
+      <button type="submit">Check these reviews</button>
+    </form>
+  </div>
+  {% if result %}{% include "_result.html" %}{% endif %}
+<script>
+function pick(m){
+  document.getElementById('mode').value = m;
+  ['product','text'].forEach(k =>
+    document.getElementById('p-'+k).style.display = k===m ? '' : 'none');
+  document.querySelectorAll('.tabs a').forEach(a =>
+    a.classList.toggle('on', a.dataset.m===m));
+}
+</script>
+{% endblock %}

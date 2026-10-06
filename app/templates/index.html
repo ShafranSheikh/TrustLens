@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block body %}
+  {% if error %}<div class="err">{{ error }}</div>{% endif %}
+
+  <div class="card">
+    <form id="f" onsubmit="return go(event)">
+      <label for="url">Product link</label>
+      <input type="url" name="url" id="url" required autofocus
+             placeholder="https://…  paste the address of any product page">
+      <button type="submit" id="btn">Check the reviews</button>
+      <p class="hint">Every review on the product is read, page by page, then run
+         through the trained models. Expect anywhere from half a minute to a few
+         minutes depending on how many there are.</p>
+    </form>
+  </div>
+
+  <div class="card" id="work" style="display:none">
+    <div style="display:flex;align-items:center;gap:14px">
+      <svg width="26" height="26" viewBox="0 0 50 50" aria-hidden="true">
+        <circle cx="25" cy="25" r="20" fill="none" stroke="#e1e0d9" stroke-width="5"/>
+        <circle cx="25" cy="25" r="20" fill="none" stroke="#2a78d6" stroke-width="5"
+                stroke-linecap="round" stroke-dasharray="32 100">
+          <animateTransform attributeName="transform" type="rotate" from="0 25 25"
+                            to="360 25 25" dur="0.9s" repeatCount="indefinite"/>
+        </circle>
+      </svg>
+      <div style="flex:1">
+        <div style="font-weight:600" id="stage">Starting up</div>
+        <div class="hint" style="margin-top:2px" id="count"></div>
+      </div>
+      <div class="hint" id="clock">0s</div>
+    </div>
+    <div style="height:4px;background:var(--line);border-radius:999px;overflow:hidden;
+                margin-top:16px">
+      <div id="pulse" style="height:100%;width:34%;background:var(--blue);
+                border-radius:999px;animation:slide 1.5s ease-in-out infinite"></div>
+    </div>
+    <style>@keyframes slide{0%{margin-left:-34%}100%{margin-left:100%}}</style>
+    <p class="hint">A browser is opening the page in the background and stepping
+       through the reviews. Leave this tab open.</p>
+  </div>
+{% endblock %}
+
+{% block head %}
+<script>
+let timer, clock, t0;
+function show(id, on){ document.getElementById(id).style.display = on ? '' : 'none'; }
+function fail(msg){
+  clearInterval(timer); clearInterval(clock); show('work', false);
+  const b = document.getElementById('btn');
+  b.disabled = false; b.textContent = 'Check the reviews';
+  let e = document.querySelector('.err');
+  if(!e){ e = document.createElement('div'); e.className = 'err';
+          document.querySelector('.wrap').insertBefore(e, document.querySelector('.card')); }
+  e.textContent = msg;
+}
+async function go(ev){
+  ev.preventDefault();
+  const b = document.getElementById('btn');
+  b.disabled = true; b.textContent = 'Working…';
+  document.querySelectorAll('.err').forEach(e => e.remove());
+  show('work', true);
+  t0 = Date.now();
+  clock = setInterval(() => {
+    document.getElementById('clock').textContent =
+      Math.round((Date.now() - t0) / 1000) + 's';
+  }, 1000);
+  let job;
+  try {
+    const r = await fetch('/scrape', {method:'POST', body:new FormData(document.getElementById('f'))});
+    const j = await r.json();
+    if (j.error) return fail(j.error);
+    job = j.job;
+  } catch (e) { return fail('Could not reach the application. Is it still running?'); }
+  timer = setInterval(async () => {
+    let p;
+    try { p = await (await fetch('/progress/' + job)).json(); }
+    catch (e) { return; }                       // a dropped poll is not a failure
+    if (p.error) return fail(p.error);
+    document.getElementById('stage').textContent = p.stage || 'Working';
+    document.getElementById('count').textContent =
+      p.reviews ? p.reviews + ' review' + (p.reviews === 1 ? '' : 's') + ' so far'
+                + (p.pages ? ' · ' + p.pages + ' page' + (p.pages === 1 ? '' : 's') : '')
+                : '';
+    if (p.done) { clearInterval(timer); clearInterval(clock);
+                  window.location = '/result/' + job; }
+  }, 700);
+  return false;
+}
+</script>
+{% endblock %}

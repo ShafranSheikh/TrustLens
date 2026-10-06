@@ -1,0 +1,83 @@
+{# Shared by the live-scrape result page and the offline fallback. #}
+  <div class="card">
+    <div class="scores">
+      <div class="score">
+        <div class="n" id="big">{{ '%.2f'|format(result.plain) }}</div>
+        <div class="l" id="biglabel">Rating shown on the listing</div>
+      </div>
+      <div class="arrow">&rarr;</div>
+      <div class="score">
+        <div class="n" style="color:var(--blue)">{{ '%.2f'|format(result.weighted) }}</div>
+        <div class="l">After weighting by trust</div>
+      </div>
+      <div class="delta">
+        {{ '%+.2f'|format(result.shift) }} stars &middot;
+        {{ result.flagged }} of {{ result.n }} look doubtful &middot;
+        {{ result.mismatched }} contradict their rating
+      </div>
+    </div>
+    {% if result.why %}<p class="why">{{ result.why }}</p>{% endif %}
+    {% if result.filtered is not none and result.flagged %}
+      <p class="why">Dropping the doubtful reviews outright instead of counting them
+         for less gives <strong>{{ '%.2f'|format(result.filtered) }}</strong>
+         ({{ '%+.2f'|format(result.shift_filtered) }}). Both are reported because
+         the two schemes bound the effect from either side.</p>
+    {% endif %}
+    <label class="toggle">
+      <input type="checkbox" id="tw" checked onchange="flip()">
+      <span>Count doubtful reviews for less</span>
+    </label>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      {{ result.charts.rating|safe }}
+      {{ result.charts.stars|safe }}
+    </div>
+  </div>
+
+  {% if result.charts.words %}
+  <div class="card">{{ result.charts.words|safe }}
+    <p class="note">Each row is one star rating; the bar shows what the reviews at
+       that rating actually say. Agreement looks like blue on the five-star row and
+       red on the one-star row. Red reaching left out of a five-star row is a
+       rating its own words do not support.</p>
+  </div>
+  {% endif %}
+
+  {% if result.charts.aspects %}
+  <div class="card">{{ result.charts.aspects|safe }}</div>
+  {% endif %}
+
+  <div class="card">
+    <label>Reviews, least trusted first</label>
+    <table>
+      <tr><th>Rating</th><th>Review</th><th>Words</th><th>Match the<br>rating?</th><th>Trust</th></tr>
+      {% for r in result.reviews[:30] %}
+      <tr>
+        <td class="stars">{{ '★'*r.star_rating }}</td>
+        <td>{{ r.review_text[:120] }}</td>
+        <td><span class="pill {{ 'ok' if r.sentiment=='Positive' else 'low' if r.sentiment=='Negative' else 'na' }}">{{ r.sentiment }}</span></td>
+        <td><span class="pill {{ r.match_cls }}">{{ r.match }}</span></td>
+        <td><span class="pill {{ 'low' if r.trust_pct < 55 else 'ok' }}">{{ r.trust_pct }}%</span></td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% if result.n > 30 %}<p class="hint">Showing 30 of {{ result.n }}.</p>{% endif %}
+    <p class="note"><b>Words</b> &mdash; what the review says, judged on its text alone,
+       ignoring the stars.<br>
+       <b>Match the rating?</b> &mdash; whether those words line up with the stars given.
+       A five-star rating on a complaint shows up here.<br>
+       <b>Trust</b> &mdash; how confident the system is that a review is a real one. A
+       low-trust review counts for less in the weighted rating above.</p>
+  </div>
+
+<script>
+function flip(){
+  const on = document.getElementById('tw').checked;
+  document.getElementById('big').textContent =
+    on ? '{{ '%.2f'|format(result.plain) }}' : '{{ '%.2f'|format(result.weighted) }}';
+  document.getElementById('biglabel').textContent =
+    on ? 'Rating shown on the listing' : 'Weighting turned off';
+}
+</script>
