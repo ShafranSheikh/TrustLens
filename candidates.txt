@@ -1,0 +1,28 @@
+# Candidate product links for the viva demonstration.
+#
+# Replace each line with a real PRODUCT page on that site - a homepage or a
+# category page has no reviews to find. Pick a popular item; obscure ones often
+# have none. Then:
+#
+#     python -m trustlens.review_scraper --file candidates.txt
+#
+# Lines starting with # are ignored, so keep notes here as you go.
+#
+# Sri Lankan shops most likely to work: the ones built on Shopify or WooCommerce
+# usually run a review app (Judge.me, Loox, Yotpo) and those publish schema.org
+# review data, which is exactly what the structured-data layer reads.
+
+# --- known good -------------------------------------------------------------
+https://www.daraz.lk/products/-i127743453-s1044998823.html
+
+# --- Sri Lankan candidates, replace with real product links -----------------
+# https://simplytek.lk/products/...
+# https://celltronics.lk/product/...
+# https://nanotek.lk/product/...
+# https://laptop.lk/product/...
+# https://www.takas.lk/...
+# https://idealz.lk/products/...
+# https://greenbee.lk/product/...
+
+# --- non-Sri-Lankan, only if you need a third platform ----------------------
+# any Shopify store showing star ratings on its product pages
