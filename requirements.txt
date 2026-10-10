@@ -11,3 +11,6 @@ flask>=3.0
 jupyterlab>=4.0
 ipykernel>=6.29
 pytest>=7.4
+selenium>=4.20
+webdriver-manager>=4.0
+vaderSentiment>=3.3

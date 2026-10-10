@@ -1,0 +1,5 @@
+Class,Precision,Recall,F1,Support
+Positive,0.95,0.974,0.962,309
+Neutral,0.625,0.469,0.536,32
+Negative,0.854,0.854,0.854,48
+Macro average,0.81,0.766,0.784,389

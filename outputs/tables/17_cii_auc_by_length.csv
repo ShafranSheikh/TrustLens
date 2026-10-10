@@ -1,0 +1,10 @@
+Reviews of length,Feature,n,Suspicious,ROC-AUC,CI low,CI high,Beats chance
+0+ characters,Review length,396,88,0.841,0.787,0.889,yes
+0+ characters,CII (predicted aspects),396,88,0.684,0.626,0.741,yes
+0+ characters,CII (annotated aspects),396,88,0.757,0.706,0.805,yes
+20+ characters,Review length,200,10,0.508,0.318,0.7,no
+20+ characters,CII (predicted aspects),200,10,0.825,0.699,0.924,yes
+20+ characters,CII (annotated aspects),200,10,0.879,0.821,0.933,yes
+40+ characters,Review length,128,6,0.465,0.264,0.709,no
+40+ characters,CII (predicted aspects),128,6,0.936,0.869,0.982,yes
+40+ characters,CII (annotated aspects),128,6,0.929,0.865,0.977,yes

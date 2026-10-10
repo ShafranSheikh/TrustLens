@@ -1,0 +1,12 @@
+Probe,Predicted,Score,P(neg),Key word,Times in training
+good product,Positive,0.996,0.0,product,295
+fast delivery,Positive,0.943,0.02,delivery,138
+ok,Positive,0.894,0.02,ok,62
+average,Neutral,0.012,0.01,average,4
+not working,Negative,-0.957,0.96,working,56
+do not buy,Negative,-0.985,0.99,not,119
+very bad quality,Negative,-0.738,0.83,quality,152
+broke after two days,Negative,-0.727,0.86,broke,11
+this is terrible,Negative,-0.36,0.65,terrible,1
+worst product,Positive,0.539,0.2,product,295
+stopped working,Neutral,-0.029,0.19,stopped,3

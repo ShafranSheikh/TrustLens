@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offline fallback &middot; TrustLens</title>
+<style>
+  :root{
+    --surface:#fcfcfb; --plane:#f5f5f2; --ink:#0b0b0b; --ink2:#52514e;
+    --muted:#898781; --line:#e1e0d9; --edge:#c3c2b7;
+    --blue:#2a78d6; --orange:#eb6834; --grey:#c3c2b7; --red:#e34948;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--plane);color:var(--ink);
+       font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+  .wrap{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+  h1{font-size:26px;margin:0 0 4px} h1 span{color:var(--blue)}
+  h1 a{color:inherit;text-decoration:none}
+  .sub{color:var(--ink2);margin:0 0 28px;max-width:62ch}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+        padding:22px;margin-bottom:20px}
+  label{display:block;font-weight:600;font-size:13px;margin-bottom:6px}
+  select,textarea,input[type=url]{width:100%;padding:12px;border:1px solid var(--edge);
+        border-radius:8px;font:inherit;background:var(--surface);color:var(--ink)}
+  input[type=url]{font-size:15px}
+  input[type=url]:focus,textarea:focus,select:focus{outline:2px solid var(--blue);
+        outline-offset:-1px;border-color:var(--blue)}
+  textarea{min-height:120px;resize:vertical}
+  .hint{color:var(--muted);font-size:12.5px;margin-top:8px}
+  button{margin-top:16px;padding:11px 22px;border:0;border-radius:8px;background:var(--blue);
+        color:#fff;font:inherit;font-weight:600;cursor:pointer}
+  button:hover{background:#2468b8} button:disabled{background:var(--edge);cursor:default}
+  .tabs{display:flex;gap:8px;margin-bottom:18px}
+  .tabs a{padding:7px 14px;border-radius:999px;text-decoration:none;font-size:13.5px;
+        color:var(--ink2);background:var(--plane);border:1px solid var(--line);cursor:pointer}
+  .tabs a.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .err{background:#fdeceb;border:1px solid #f5c2be;color:#8c2019;padding:12px 14px;
+        border-radius:8px;margin-bottom:18px;font-size:14px}
+  .note-ok{background:#e9f3ff;border:1px solid #bcd9f7;color:#1c5cab;padding:10px 13px;
+        border-radius:8px;margin-bottom:16px;font-size:13.5px}
+  .why{font-size:13px;color:var(--muted);margin:10px 0 0;max-width:64ch;line-height:1.55}
+  .scores{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+  .score .n{font-size:44px;font-weight:700;line-height:1}
+  .score .l{font-size:12.5px;color:var(--ink2);margin-top:4px}
+  .arrow{color:var(--muted);font-size:24px}
+  .delta{font-size:13px;font-weight:600;padding:3px 9px;border-radius:999px;
+        background:var(--plane);border:1px solid var(--line);color:var(--ink2)}
+  .toggle{display:flex;align-items:center;gap:9px;margin:18px 0 0;font-size:14px;
+        color:var(--ink2);cursor:pointer;user-select:none}
+  .toggle input{width:36px;height:20px;appearance:none;background:var(--edge);
+        border-radius:999px;position:relative;cursor:pointer;transition:background .15s}
+  .toggle input:checked{background:var(--blue)}
+  .toggle input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;
+        background:#fff;border-radius:50%;transition:left .15s}
+  .toggle input:checked::after{left:18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}
+  figure.chart{margin:0}
+  figure.chart figcaption{font-weight:600;font-size:13px;margin-bottom:10px}
+  figure.chart figcaption .sub{display:block;font-weight:400;color:var(--muted);
+        font-size:12px;margin-top:2px}
+  figure.chart svg rect,figure.chart svg circle{transition:opacity .12s}
+  figure.chart:hover svg rect:hover,figure.chart:hover svg circle:hover{opacity:.78}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;
+        color:var(--muted);border-bottom:1px solid var(--line);padding:7px 8px}
+  td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600}
+  .ok{background:#e6f0fb;color:#1c5cab} .low{background:#fdeceb;color:#8c2019}
+  .mid{background:#fdf0e6;color:#8a3f14} .na{background:var(--plane);color:var(--muted)}
+  .stars{color:var(--orange);white-space:nowrap}
+  .note{font-size:12.5px;color:var(--muted);margin-top:18px;line-height:1.5}
+  .meta{font-size:12.5px;color:var(--muted);margin:0 0 20px}
+  .meta code{background:var(--surface);border:1px solid var(--line);border-radius:4px;
+        padding:1px 5px;font-size:12px}
+  .back{font-size:13.5px;color:var(--blue);text-decoration:none}
+  .back:hover{text-decoration:underline}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <h1><a href="/">Trust<span>Lens</span></a></h1>
+  <p class="sub">Offline fallback. Neither of these needs the network or Chrome,
+  so a demonstration always has a route that works. The live version is on the
+  <a href="/">front page</a>.</p>
+  
+  
+  <div class="card">
+    <form method="post" id="f">
+      <input type="hidden" name="mode" id="mode" value="product">
+      <div class="tabs">
+        <a class="on" data-m="product"
+           onclick="pick('product');return false">From the dataset</a>
+        <a class="" data-m="text"
+           onclick="pick('text');return false">Reviews I type</a>
+      </div>
+      <div id="p-product" >
+        <label for="product">Pick a product from the annotated corpus</label>
+        <select name="product" id="product">
+          
+            <option value="4G Yagi Antenna Black Cable" >
+              4G Yagi Antenna Black Cable — 200 reviews (electronics)</option>
+          
+            <option value="Marvel Lady Panty Liners 20 Pcs" >
+              Marvel Lady Panty Liners 20 Pcs — 200 reviews (grocery)</option>
+          
+            <option value="3D View Virtual Reality VR Box Glasses Headset Gear Theater Panorama For Smartphones" selected>
+              3D View Virtual Reality VR Box Glasses Headset Gear Theater Pano — 199 reviews (electronics)</option>
+          
+            <option value="(1.5M/3M/5M/10M) 3.5 MM Male Jack to AV 2 RCA Male Stereo Music Audio Cable Cord AUX for Mp3 Pod Phone TV Sound Speakers" >
+              (1.5M/3M/5M/10M) 3.5 MM Male Jack to AV 2 RCA Male Stereo Music  — 167 reviews (electronics)</option>
+          
+            <option value="Car Wireless Bluetooth AUX Music Receiver Adapter with in-built Microphone USB Dongle For Home Speaker 192332231 TecMall" >
+              Car Wireless Bluetooth AUX Music Receiver Adapter with in-built  — 143 reviews (electronics)</option>
+          
+            <option value="Netflix 1 Month 4K UHD" >
+              Netflix 1 Month 4K UHD — 130 reviews (electronics)</option>
+          
+            <option value="Xbox 360 Wired Controller for Xbox360 Gamepad Joystick Game Pad" >
+              Xbox 360 Wired Controller for Xbox360 Gamepad Joystick Game Pad — 99 reviews (electronics)</option>
+          
+            <option value="Bodycon Short Frock for Women Summer Wear High Quality Fabric Sleeveless Mock Neck, Available in Multicolor" >
+              Bodycon Short Frock for Women Summer Wear High Quality Fabric Sl — 76 reviews (fashion)</option>
+          
+            <option value="Short girls dress Sleeve Linen Bow Frock" >
+              Short girls dress Sleeve Linen Bow Frock — 69 reviews (fashion)</option>
+          
+            <option value="Smartt Pregnancy Test Midstream" >
+              Smartt Pregnancy Test Midstream — 64 reviews (grocery)</option>
+          
+            <option value="Ear Digging Spoon Set - 6 Piece Metal Tools for Gentle Ear Cleaning and Care" >
+              Ear Digging Spoon Set - 6 Piece Metal Tools for Gentle Ear Clean — 61 reviews (grocery)</option>
+          
+            <option value="Long Frock Coat Design" >
+              Long Frock Coat Design — 59 reviews (fashion)</option>
+          
+            <option value="Eye Colour Contact Lenses 2 pcs (Pair) for Men / Women High Quality 1 Year use + Free full set (Case + Liquid 5ml) Blue Brown Green Eye Contacts lenses" >
+              Eye Colour Contact Lenses 2 pcs (Pair) for Men / Women High Qual — 56 reviews (grocery)</option>
+          
+            <option value="MP3 Music Media Player with Great Sound With Micro TF/SD Card Slot sport mp3 Music Mini Portable USB MP3 Player Mini Clip MP3 Waterproof Sport Compact Metal Mp3 Music Player" >
+              MP3 Music Media Player with Great Sound With Micro TF/SD Card Sl — 52 reviews (electronics)</option>
+          
+            <option value="Double Sleeve Front Button Women Plain Frock" >
+              Double Sleeve Front Button Women Plain Frock — 51 reviews (fashion)</option>
+          
+            <option value="Short Sleeve Plain Frock" >
+              Short Sleeve Plain Frock — 37 reviews (fashion)</option>
+          
+            <option value="50PCS Deep Cleaning Dental Floss Picks – Original Flavor, Strong Polyester Thread for Gentle but Effective Oral Care – Convenient and Disposable for Daily and Travel Use" >
+              50PCS Deep Cleaning Dental Floss Picks – Original Flavor, Strong — 35 reviews (grocery)</option>
+          
+            <option value="Summer Women Casual Sheath Dress Lady Spaghetti Strap Sleeveless Sexy Stretch Slim Dress Vestidos QT030" >
+              Summer Women Casual Sheath Dress Lady Spaghetti Strap Sleeveless — 32 reviews (fashion)</option>
+          
+            <option value="Casual Frocks for Women - Summer Season, High Quality Fabric, Stylish square neck and elegant 3/4 sleeves, Available in Dark blue Color" >
+              Casual Frocks for Women - Summer Season, High Quality Fabric, St — 27 reviews (fashion)</option>
+          
+            <option value="3Pack Dopamine Pockets Tennis Skirts for Women Fitness Skinny Pleated Skirt Outdoors Corset Pockets Shorts High V Waist" >
+              3Pack Dopamine Pockets Tennis Skirts for Women Fitness Skinny Pl — 25 reviews (fashion)</option>
+          
+            <option value="Marvel Super Lady Tampons 10 Pcs" >
+              Marvel Super Lady Tampons 10 Pcs — 21 reviews (grocery)</option>
+          
+            <option value="Women&#39;s Striped Dress – Casual &amp; Comfy Everyday Wear" >
+              Women&#39;s Striped Dress – Casual &amp; Comfy Everyday Wear — 21 reviews (fashion)</option>
+          
+            <option value="3D තිරය Magnifier Smartphone Magnifying වීදුරු, තිරය Enlarger, Magnifier 3D Movie Video තිරය ඇම්ප්ලිෆයර්." >
+              3D තිරය Magnifier Smartphone Magnifying වීදුරු, තිරය Enlarger, M — 19 reviews (electronics)</option>
+          
+            <option value="Nessie Black Mock Neck Gather Short Sleeve Bodycon Short Frock" >
+              Nessie Black Mock Neck Gather Short Sleeve Bodycon Short Frock — 18 reviews (fashion)</option>
+          
+            <option value="Casual Frocks for Women - Summer Season, High Quality Fabric, Elegant Design, Available in Red Color" >
+              Casual Frocks for Women - Summer Season, High Quality Fabric, El — 16 reviews (fashion)</option>
+          
+            <option value="WideCare HCG Pregnancy Test Strip Maternity Tool - Pack of 5" >
+              WideCare HCG Pregnancy Test Strip Maternity Tool - Pack of 5 — 16 reviews (grocery)</option>
+          
+            <option value="Girls&#39; New Design Coat Frock" >
+              Girls&#39; New Design Coat Frock — 14 reviews (fashion)</option>
+          
+            <option value="Pradon Fashion Women Ladies Girls O Neck Short Sleeve Bodycon Casual Office Frock Dress Black White Green Brwon Blue" >
+              Pradon Fashion Women Ladies Girls O Neck Short Sleeve Bodycon Ca — 14 reviews (fashion)</option>
+          
+            <option value="Casual Multicolor Linen Fabric Frock Skirt with Pockets for Spring/Summer/Autumn Dress For Women" >
+              Casual Multicolor Linen Fabric Frock Skirt with Pockets for Spri — 13 reviews (fashion)</option>
+          
+            <option value="Ladies Casual Shirt Tops/Women&#39;s shirt tops" >
+              Ladies Casual Shirt Tops/Women&#39;s shirt tops — 12 reviews (fashion)</option>
+          
+            <option value="Ladies Casual Frocks Women&#39;s Dresses" >
+              Ladies Casual Frocks Women&#39;s Dresses — 11 reviews (fashion)</option>
+          
+            <option value="Nibber Summer Bachelor Party White Solid Simple Elegant Mature Beautiful Confident Feminine Sexy Women&#39;s Short Tight Dress" >
+              Nibber Summer Bachelor Party White Solid Simple Elegant Mature B — 8 reviews (fashion)</option>
+          
+            <option value="Women&#39;s Casual Frock Masha Material Long Sleeve Knee Length Party and Office Dress Black" >
+              Women&#39;s Casual Frock Masha Material Long Sleeve Knee Length Part — 7 reviews (fashion)</option>
+          
+        </select>
+      </div>
+      <div id="p-text" style="display:none">
+        <label for="reviews">Paste reviews, one per line</label>
+        <textarea name="reviews" id="reviews"
+          placeholder="5 | Great product, arrived fast&#10;5 | stopped working after two days&#10;1 | good quality thanks"></textarea>
+        <p class="hint">Start each line with the rating (1&ndash;5), then a vertical
+           bar, then the review.</p>
+      </div>
+      <button type="submit">Check these reviews</button>
+    </form>
+  </div>
+  
+  <div class="card">
+    <div class="scores">
+      <div class="score">
+        <div class="n" id="big">4.57</div>
+        <div class="l" id="biglabel">Rating shown on the listing</div>
+      </div>
+      <div class="arrow">&rarr;</div>
+      <div class="score">
+        <div class="n" style="color:var(--blue)">4.47</div>
+        <div class="l">After weighting by trust</div>
+      </div>
+      <div class="delta">
+        -0.10 stars &middot;
+        48 of 199 look doubtful &middot;
+        32 contradict their rating
+      </div>
+    </div>
+    
+    
+      <p class="why">Dropping the doubtful reviews outright instead of counting them
+         for less gives <strong>4.47</strong>
+         (-0.10). Both are reported because
+         the two schemes bound the effect from either side.</p>
+    
+    <label class="toggle">
+      <input type="checkbox" id="tw" checked onchange="flip()">
+      <span>Count doubtful reviews for less</span>
+    </label>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <figure class="chart"><figcaption>The same product, three ways<span class="sub">all on the 1-5 star scale</span></figcaption><svg viewBox="0 0 520 128" width="100%" height="auto" role="img" aria-label="The same product, three ways" preserveAspectRatio="xMinYMin meet"><line x1="146.0" y1="16" x2="146.0" y2="104" stroke="#e1e0d9" stroke-width="1"/><text x="146.0" y="126.0" font-size="9" fill="#898781" text-anchor="middle" font-weight="400">4.44</text><line x1="211.6" y1="16" x2="211.6" y2="104" stroke="#e1e0d9" stroke-width="1"/><text x="211.6" y="126.0" font-size="9" fill="#898781" text-anchor="middle" font-weight="400">4.47</text><line x1="277.2" y1="16" x2="277.2" y2="104" stroke="#e1e0d9" stroke-width="1"/><text x="277.2" y="126.0" font-size="9" fill="#898781" text-anchor="middle" font-weight="400">4.50</text><line x1="342.8" y1="16" x2="342.8" y2="104" stroke="#e1e0d9" stroke-width="1"/><text x="342.8" y="126.0" font-size="9" fill="#898781" text-anchor="middle" font-weight="400">4.54</text><line x1="408.4" y1="16" x2="408.4" y2="104" stroke="#e1e0d9" stroke-width="1"/><text x="408.4" y="126.0" font-size="9" fill="#898781" text-anchor="middle" font-weight="400">4.57</text><line x1="474.0" y1="16" x2="474.0" y2="104" stroke="#e1e0d9" stroke-width="1"/><text x="474.0" y="126.0" font-size="9" fill="#898781" text-anchor="middle" font-weight="400">4.60</text><text x="136.0" y="31.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">Shown on the listing</text><line x1="146" y1="27" x2="409.2" y2="27" stroke="#c3c2b7" stroke-width="2" stroke-linecap="round"/><circle cx="409.2" cy="27" r="5.5" fill="#c3c2b7" stroke="#fcfcfb" stroke-width="2"><title>Shown on the listing: 4.57 stars</title></circle><text x="420.2" y="31.0" font-size="11" fill="#0b0b0b" text-anchor="start" font-weight="600">4.57</text><text x="136.0" y="61.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">Weighted by trust</text><line x1="146" y1="57" x2="210.8" y2="57" stroke="#2a78d6" stroke-width="2" stroke-linecap="round"/><circle cx="210.8" cy="57" r="5.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>Weighted by trust: 4.47 stars</title></circle><text x="221.8" y="61.0" font-size="11" fill="#0b0b0b" text-anchor="start" font-weight="600">4.47</text><text x="136.0" y="91.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">Doubtful ones dropped</text><line x1="146" y1="87" x2="210.8" y2="87" stroke="#eb6834" stroke-width="2" stroke-linecap="round"/><circle cx="210.8" cy="87" r="5.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>Doubtful ones dropped: 4.47 stars</title></circle><text x="221.8" y="91.0" font-size="11" fill="#0b0b0b" text-anchor="start" font-weight="600">4.47</text></svg></figure>
+      <figure class="chart"><figcaption>What the stars say<span class="sub">199 reviews by rating</span></figcaption><svg viewBox="0 0 520 164" width="100%" height="auto" role="img" aria-label="What the stars say" preserveAspectRatio="xMinYMin meet"><rect x="0" y="0" width="520" height="164" fill="none"/><text x="26.0" y="39.0" font-size="11" fill="#898781" text-anchor="end" font-weight="400">5★</text><rect x="34" y="29" width="412" height="15" rx="3" fill="#e1e0d9" opacity="0.5"/><rect x="34" y="29" width="412.0" height="15" rx="4" fill="#2a78d6"><title>158 reviews at 5 stars (79%)</title></rect><text x="438.0" y="40.0" font-size="10.5" fill="#ffffff" text-anchor="end" font-weight="600">158  (79%)</text><text x="26.0" y="65.0" font-size="11" fill="#898781" text-anchor="end" font-weight="400">4★</text><rect x="34" y="55" width="412" height="15" rx="3" fill="#e1e0d9" opacity="0.5"/><rect x="34" y="55" width="44.3" height="15" rx="4" fill="#2a78d6"><title>17 reviews at 4 stars (9%)</title></rect><text x="86.3" y="66.0" font-size="10.5" fill="#52514e" text-anchor="start" font-weight="400">17  (9%)</text><text x="26.0" y="91.0" font-size="11" fill="#898781" text-anchor="end" font-weight="400">3★</text><rect x="34" y="81" width="412" height="15" rx="3" fill="#e1e0d9" opacity="0.5"/><rect x="34" y="81" width="33.9" height="15" rx="4" fill="#2a78d6"><title>13 reviews at 3 stars (7%)</title></rect><text x="75.9" y="92.0" font-size="10.5" fill="#52514e" text-anchor="start" font-weight="400">13  (7%)</text><text x="26.0" y="117.0" font-size="11" fill="#898781" text-anchor="end" font-weight="400">2★</text><rect x="34" y="107" width="412" height="15" rx="3" fill="#e1e0d9" opacity="0.5"/><rect x="34" y="107" width="4.0" height="15" rx="4" fill="#2a78d6"><title>1 review at 2 stars (1%)</title></rect><text x="44.6" y="118.0" font-size="10.5" fill="#52514e" text-anchor="start" font-weight="400">1  (1%)</text><text x="26.0" y="143.0" font-size="11" fill="#898781" text-anchor="end" font-weight="400">1★</text><rect x="34" y="133" width="412" height="15" rx="3" fill="#e1e0d9" opacity="0.5"/><rect x="34" y="133" width="26.1" height="15" rx="4" fill="#2a78d6"><title>10 reviews at 1 stars (5%)</title></rect><text x="68.1" y="144.0" font-size="10.5" fill="#52514e" text-anchor="start" font-weight="400">10  (5%)</text></svg></figure>
+    </div>
+  </div>
+
+  
+  <div class="card"><figure class="chart"><figcaption>What the words say, at each star rating<span class="sub">a long red arm on a five-star row is the case this system exists for</span></figcaption><svg viewBox="0 0 520 202" width="100%" height="auto" role="img" aria-label="What the words say, at each star rating" preserveAspectRatio="xMinYMin meet"><line x1="272.0" y1="14" x2="272.0" y2="168" stroke="#c3c2b7" stroke-width="1"/><text x="44.0" y="36.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">5 ★</text><rect x="206.3" y="24" width="52.0" height="17" rx="2" fill="#e34948"><title>5 ★: 30 Negative (19% of 158)</title></rect><text x="232.4" y="36.5" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="600">30</text><rect x="260.4" y="24" width="23.2" height="17" rx="2" fill="#c3c2b7"><title>5 ★: 14 Neutral (9% of 158)</title></rect><rect x="285.6" y="24" width="203.4" height="17" rx="2" fill="#2a78d6"><title>5 ★: 114 Positive (72% of 158)</title></rect><text x="387.3" y="36.5" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="600">114</text><text x="496.0" y="36.0" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">158</text><text x="44.0" y="66.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">4 ★</text><rect x="262.2" y="54" width="1.6" height="17" rx="2" fill="#e34948"><title>4 ★: 2 Negative (12% of 17)</title></rect><rect x="265.8" y="54" width="12.4" height="17" rx="2" fill="#c3c2b7"><title>4 ★: 8 Neutral (47% of 17)</title></rect><rect x="280.2" y="54" width="10.6" height="17" rx="2" fill="#2a78d6"><title>4 ★: 7 Positive (41% of 17)</title></rect><text x="496.0" y="66.0" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">17</text><text x="44.0" y="96.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">3 ★</text><rect x="264.9" y="84" width="1.6" height="17" rx="2" fill="#e34948"><title>3 ★: 2 Negative (15% of 13)</title></rect><rect x="268.5" y="84" width="7.0" height="17" rx="2" fill="#c3c2b7"><title>3 ★: 5 Neutral (38% of 13)</title></rect><rect x="277.5" y="84" width="8.8" height="17" rx="2" fill="#2a78d6"><title>3 ★: 6 Positive (46% of 13)</title></rect><text x="496.0" y="96.0" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">13</text><text x="44.0" y="126.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">2 ★</text><rect x="273.0" y="114" width="1.0" height="17" rx="2" fill="#2a78d6"><title>2 ★: 1 Positive (100% of 1)</title></rect><text x="496.0" y="126.0" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">1</text><text x="44.0" y="156.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">1 ★</text><rect x="255.0" y="144" width="16.0" height="17" rx="2" fill="#e34948"><title>1 ★: 10 Negative (100% of 10)</title></rect><text x="496.0" y="156.0" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">10</text><rect x="54" y="176" width="9" height="9" rx="2" fill="#e34948"/><text x="67.0" y="184.0" font-size="10" fill="#898781" text-anchor="start" font-weight="400">Negative</text><rect x="124.8" y="176" width="9" height="9" rx="2" fill="#c3c2b7"/><text x="137.8" y="184.0" font-size="10" fill="#898781" text-anchor="start" font-weight="400">Neutral</text><rect x="189.5" y="176" width="9" height="9" rx="2" fill="#2a78d6"/><text x="202.5" y="184.0" font-size="10" fill="#898781" text-anchor="start" font-weight="400">Positive</text></svg></figure>
+    <p class="note">Each row is one star rating; the bar shows what the reviews at
+       that rating actually say. Agreement looks like blue on the five-star row and
+       red on the one-star row. Red reaching left out of a five-star row is a
+       rating its own words do not support.</p>
+  </div>
+  
+
+  
+  <div class="card"><figure class="chart"><figcaption>What the reviews are about<span class="sub">sentiment per aspect, across every review read</span></figcaption><svg viewBox="0 0 520 202" width="100%" height="auto" role="img" aria-label="What the reviews are about" preserveAspectRatio="xMinYMin meet"><line x1="306.0" y1="14" x2="306.0" y2="168" stroke="#c3c2b7" stroke-width="1"/><text x="112.0" y="36.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">Product Quality</text><rect x="190.4" y="24" width="80.9" height="17" rx="2" fill="#e34948"><title>Product Quality: 32 Negative (28% of 116)</title></rect><text x="230.8" y="36.5" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="600">32</text><rect x="273.3" y="24" width="65.4" height="17" rx="2" fill="#c3c2b7"><title>Product Quality: 26 Neutral (22% of 116)</title></rect><text x="306.0" y="36.5" font-size="10" fill="#52514e" text-anchor="middle" font-weight="600">26</text><rect x="340.7" y="24" width="148.3" height="17" rx="2" fill="#2a78d6"><title>Product Quality: 58 Positive (50% of 116)</title></rect><text x="414.8" y="36.5" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="600">58</text><text x="496.0" y="36.0" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">116</text><text x="112.0" y="66.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">Price/Value</text><rect x="294.0" y="54" width="8.4" height="17" rx="2" fill="#e34948"><title>Price/Value: 4 Negative (11% of 35)</title></rect><rect x="304.4" y="54" width="3.2" height="17" rx="2" fill="#c3c2b7"><title>Price/Value: 2 Neutral (6% of 35)</title></rect><rect x="309.6" y="54" width="73.2" height="17" rx="2" fill="#2a78d6"><title>Price/Value: 29 Positive (83% of 35)</title></rect><text x="346.2" y="66.5" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="600">29</text><text x="496.0" y="66.0" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">35</text><text x="112.0" y="96.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">Delivery/Shipping</text><rect x="307.0" y="84" width="47.2" height="17" rx="2" fill="#2a78d6"><title>Delivery/Shipping: 19 Positive (100% of 19)</title></rect><text x="330.6" y="96.5" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="600">19</text><text x="496.0" y="96.0" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">19</text><text x="112.0" y="126.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">Packaging</text><rect x="304.4" y="114" width="1.0" height="17" rx="2" fill="#e34948"><title>Packaging: 1 Negative (17% of 6)</title></rect><rect x="307.0" y="114" width="11.0" height="17" rx="2" fill="#2a78d6"><title>Packaging: 5 Positive (83% of 6)</title></rect><text x="496.0" y="126.0" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">6</text><text x="112.0" y="156.0" font-size="11" fill="#52514e" text-anchor="end" font-weight="400">Seller Service</text><rect x="296.6" y="144" width="8.4" height="17" rx="2" fill="#e34948"><title>Seller Service: 4 Negative (80% of 5)</title></rect><rect x="307.0" y="144" width="1.0" height="17" rx="2" fill="#2a78d6"><title>Seller Service: 1 Positive (20% of 5)</title></rect><text x="496.0" y="156.0" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">5</text><rect x="122" y="176" width="9" height="9" rx="2" fill="#e34948"/><text x="135.0" y="184.0" font-size="10" fill="#898781" text-anchor="start" font-weight="400">Negative</text><rect x="192.8" y="176" width="9" height="9" rx="2" fill="#c3c2b7"/><text x="205.8" y="184.0" font-size="10" fill="#898781" text-anchor="start" font-weight="400">Neutral</text><rect x="257.5" y="176" width="9" height="9" rx="2" fill="#2a78d6"/><text x="270.5" y="184.0" font-size="10" fill="#898781" text-anchor="start" font-weight="400">Positive</text></svg></figure></div>
+  
+
+  <div class="card">
+    <label>Reviews, least trusted first</label>
+    <table>
+      <tr><th>Rating</th><th>Review</th><th>Words</th><th>Match the<br>rating?</th><th>Trust</th></tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>fake one..🤬🤬🤮🤮🤮</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill low">36%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>ගන්න එපා. මූනට සෙට් වෙනව පංච් කෑල්ල නැතුව තමයි මට ආවේ රිටන් කරා ඒත් ආපහු ඒකමයි ආවේ.
+Don&#39;t buy it. It came without the fi</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">73%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>wadak Na ganna epa</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">76%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>hadak ne Gabba epa Meka hugak hayiya ne</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">78%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>dont buy this item.</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">87%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>ගන්න එපා තේරුමක් නෑ.... අපරාදේ සල්ලි.</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">88%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>don&#39;t buy this item not fit phone size. after cannot return fake item</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">92%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>Do not buy. The software for this game does not work. Dissapointing</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">92%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>return</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill low">26%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>hariyata adjust venne na bodai mage phone eka dannath madi</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">91%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>කිසිම වැඩක් නැ හොද කොලිටියක් ගන්න බැහැ මගේ පොන් එක redmi note 12 ඒක දාන්න බැ මෙකට ලොකු පෝන් දාන්න බැ පෝන් එකෙ ආලොකය වැ</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">85%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>මේක තියලා වාඩි වෙයන් hutta 🤣 aprde slli 👍</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">94%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>this product is good but one a problem
+2iye to 1pic not fully mobile senter part missing 
+I try to adjust and you tube t</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">88%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>no good</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill low">12%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>Dear daraz, I&#39;m not really happy with your product because it&#39;s no matching your image and descriptions Because it&#39;s to </td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">88%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>ඇත්තටම මේ භාන්ඩය මිලදී ගැනීම් ගැන මම දුක් දෙනවා.අඩුම තරමෙ මගෙ ෆෝන් එකව්ත් මෙව්කට සම්බන්ද්ද් කරර්න් න බෑ</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">91%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>rettan</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill low">14%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>not good</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill low">12%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>worry bad product. but my mistake mm</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">87%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>Meka hari yanne  poru karanne kattiya  revettana vaa hello phone eka thamma vitharai kedunaa aiyyo phone eka thannavath </td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">90%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>This is verry Bad product</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">68%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>.මේක වැඩක් නෑ.punch එකක් නෑ</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">80%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★</td>
+        <td>phone holder doesn&#39;t hold the phone tighter</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">92%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>ගෙවන මුදල අනුව සසඳන විට මෙය ඉතාමත්ම වටිනවා. හොද build quality එකක් බලාගන්න පුලුවන්. මෙය මිලදි ගැනිමට පෙර gyroscope senso</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">84%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★</td>
+        <td>good product</td>
+        <td><span class="pill ok">Positive</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">76%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>අවුලක් නැ සුපිරියි</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">77%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>top බඩු top බඩු බල බල ඉන්න එපා ගන්න මේක. 😙😙</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">82%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>අවුලක්‌ නෑ. හොදයි. but.... ❗</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">88%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>ගානට ෂේප්. අවුලක් නෑ.</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">89%</span></td>
+      </tr>
+      
+      <tr>
+        <td class="stars">★★★★★</td>
+        <td>මට ආපු එකනම් කිසිම අවුලක් නැ..ගෙවන ගානට ගොඩක් වටිනවා👍</td>
+        <td><span class="pill low">Negative</span></td>
+        <td><span class="pill low">No</span></td>
+        <td><span class="pill ok">91%</span></td>
+      </tr>
+      
+    </table>
+    <p class="hint">Showing 30 of 199.</p>
+    <p class="note"><b>Words</b> &mdash; what the review says, judged on its text alone,
+       ignoring the stars.<br>
+       <b>Match the rating?</b> &mdash; whether those words line up with the stars given.
+       A five-star rating on a complaint shows up here.<br>
+       <b>Trust</b> &mdash; how confident the system is that a review is a real one. A
+       low-trust review counts for less in the weighted rating above.</p>
+  </div>
+
+<script>
+function flip(){
+  const on = document.getElementById('tw').checked;
+  document.getElementById('big').textContent =
+    on ? '4.57' : '4.47';
+  document.getElementById('biglabel').textContent =
+    on ? 'Rating shown on the listing' : 'Weighting turned off';
+}
+</script>
+<script>
+function pick(m){
+  document.getElementById('mode').value = m;
+  ['product','text'].forEach(k =>
+    document.getElementById('p-'+k).style.display = k===m ? '' : 'none');
+  document.querySelectorAll('.tabs a').forEach(a =>
+    a.classList.toggle('on', a.dataset.m===m));
+}
+</script>
+
+</div>
+</body>
+</html>

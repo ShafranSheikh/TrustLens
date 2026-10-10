@@ -1,0 +1,16 @@
+Feature,Importance,Family
+len_words,0.2222,length
+len_chars,0.2116,length
+cii_ascs,0.0997,cii
+beh_dup_count,0.0914,behavioural
+cii_cii,0.0645,cii
+len_mean_word,0.0547,length
+read_fk_grade,0.0525,readability
+read_flesch,0.0522,readability
+read_syll_per_word,0.0364,readability
+lex_punct_ratio,0.0271,lexical
+cii_ssg_centred,0.0246,cii
+lex_upper_ratio,0.0174,lexical
+beh_star_dev,0.0174,behavioural
+cii_isg,0.0074,cii
+lex_emoji,0.0066,lexical

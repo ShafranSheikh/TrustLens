@@ -1,0 +1,5 @@
+Language,Reviews,Accuracy,Macro F1
+English,316,0.956,0.838
+Sinhala,40,0.7,0.622
+Singlish,30,0.833,0.756
+Mixed,3,0.667,0.333

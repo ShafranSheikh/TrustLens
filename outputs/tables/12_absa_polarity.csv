@@ -1,0 +1,8 @@
+Aspect,Train examples,Classes,CV macro F1,Test macro F1,Test examples,Note
+Product Quality,857,"Positive, Negative, Neutral",0.694,0.766,240,
+Delivery/Shipping,233,"Positive, Negative, Neutral",0.534,0.48,46,
+Price/Value,142,"Positive, Negative, Neutral",0.675,0.724,21,indicative - small test set
+Seller Service,130,"Positive, Negative, Neutral",0.55,0.52,23,indicative - small test set
+Color/Design,129,"Positive, Negative, Neutral",0.645,0.509,49,
+Size/Fit,71,"Positive, Negative, Neutral",0.586,0.463,33,
+Packaging,58,"Positive, Negative",0.678,,8,Neutral dropped (5 examples minimum); only one class present in test - not measurable

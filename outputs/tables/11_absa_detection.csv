@@ -1,0 +1,8 @@
+Aspect,Train mentions,Test mentions,C,CV F1,Precision,Recall,F1,Reliable
+Product Quality,857,240,10.0,0.89,0.893,0.908,0.901,yes
+Delivery/Shipping,233,46,10.0,0.833,0.971,0.739,0.84,yes
+Price/Value,142,21,1.0,0.85,0.714,0.714,0.714,indicative
+Seller Service,130,23,10.0,0.742,0.667,0.783,0.72,indicative
+Color/Design,129,49,10.0,0.645,0.806,0.592,0.682,yes
+Size/Fit,71,33,10.0,0.553,0.952,0.606,0.741,yes
+Packaging,59,8,1.0,0.736,0.5,0.75,0.6,indicative

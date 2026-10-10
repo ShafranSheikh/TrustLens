@@ -1,0 +1,11 @@
+Approach,ROC-AUC,95% CI,Needs a model,Reviews
+Star rating alone (5 stars = suspicious),0.489,0.451-0.523,no,all
+Review length alone (character count),0.841,0.789-0.887,no,all
+Behavioural + lexical features only,0.667,0.607-0.725,yes,all
+Full feature set without CII,0.851,0.803-0.895,yes,all
+Full feature set with CII (this study),0.869,0.827-0.908,yes,all
+Star rating alone (5 stars = suspicious),0.458,0.310-0.567,no,20+ chars
+Review length alone (character count),0.508,0.311-0.712,no,20+ chars
+Behavioural + lexical features only,0.686,0.511-0.848,yes,20+ chars
+Full feature set without CII,0.608,0.399-0.807,yes,20+ chars
+Full feature set with CII (this study),0.863,0.795-0.925,yes,20+ chars

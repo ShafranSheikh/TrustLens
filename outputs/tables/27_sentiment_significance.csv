@@ -1,0 +1,5 @@
+Subset,Char n-gram minus word,95% CI,Clear at 95%?
+All test reviews (n=389),+0.002,-0.062 to +0.067,no
+Singlish only (n=30),+0.059,-0.054 to +0.190,no
+Sinhala only (n=40),-0.038,-0.225 to +0.156,no
+Non-English (n=73),-0.021,-0.123 to +0.072,no

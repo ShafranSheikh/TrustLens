@@ -1,0 +1,5 @@
+Approach,Macro-F1,Accuracy,English (n=316),Sinhala (n=40),Singlish (n=30),n non-English correct
+Majority class,0.295,0.794,0.307,0.263,0.212,40
+VADER (English lexicon),0.486,0.746,0.517,0.258,0.192,23
+Word TF-IDF + logistic regression,0.782,0.907,0.816,0.66,0.698,54
+This study (char n-gram + LR),0.784,0.918,0.838,0.622,0.756,55

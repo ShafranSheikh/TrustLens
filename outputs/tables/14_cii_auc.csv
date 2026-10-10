@@ -1,0 +1,12 @@
+Feature,Rows scored,ROC-AUC
+"SSG, pre-specified",396,0.431
+"SSG, centred",396,0.563
+"ASCS, predicted aspects",292,0.525
+"ASCS, annotated aspects",300,0.575
+"ISG, pre-specified",396,0.494
+"ISG, centred",396,0.501
+"CII, pre-specified definition",396,0.62
+"CII, centred, equal 1/3 weights",396,0.628
+"CII, centred, tuned weights",396,0.684
+"CII, centred, tuned, annotated aspects",396,0.757
+Review length (the baseline to beat),396,0.841

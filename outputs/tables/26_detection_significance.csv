@@ -1,0 +1,7 @@
+Reviews,Comparison,Change in AUC,95% CI,Resamples favouring it,Clear at 95%?
+"0+ chars (n=396, 88 susp.)",Adding CII to the full feature set,+0.018,-0.006 to +0.043,92.9%,no
+"0+ chars (n=396, 88 susp.)",The full model over review length alone,+0.028,-0.001 to +0.059,96.8%,no
+"0+ chars (n=396, 88 susp.)",Any model at all over the star rating,+0.380,+0.326 to +0.432,100.0%,yes
+"20+ chars (n=200, 10 susp.)",Adding CII to the full feature set,+0.255,+0.095 to +0.429,100.0%,yes
+"20+ chars (n=200, 10 susp.)",The full model over review length alone,+0.355,+0.168 to +0.549,100.0%,yes
+"20+ chars (n=200, 10 susp.)",Any model at all over the star rating,+0.405,+0.286 to +0.543,100.0%,yes

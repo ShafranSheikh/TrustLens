@@ -1,0 +1,19 @@
+Aspect,Polarity,Precision,Recall,F1,Test support,Trust
+Product Quality,Negative,0.906,0.806,0.853,36,yes
+Product Quality,Neutral,0.533,0.444,0.485,18,too few to judge
+Product Quality,Positive,0.943,0.978,0.96,186,yes
+Delivery/Shipping,Negative,1.0,0.333,0.5,3,too few to judge
+Delivery/Shipping,Neutral,0.0,0.0,0.0,3,too few to judge
+Delivery/Shipping,Positive,0.889,1.0,0.941,40,yes
+Price/Value,Negative,1.0,0.333,0.5,3,too few to judge
+Price/Value,Positive,0.9,1.0,0.947,18,too few to judge
+Seller Service,Negative,0.5,1.0,0.667,2,too few to judge
+Seller Service,Neutral,0.0,0.0,0.0,1,too few to judge
+Seller Service,Positive,0.944,0.85,0.895,20,yes
+Color/Design,Negative,0.778,0.583,0.667,12,too few to judge
+Color/Design,Neutral,0.0,0.0,0.0,1,too few to judge
+Color/Design,Positive,0.861,0.861,0.861,36,yes
+Packaging,Positive,1.0,1.0,1.0,8,too few to judge
+Size/Fit,Negative,0.5,0.5,0.5,4,too few to judge
+Size/Fit,Neutral,0.0,0.0,0.0,3,too few to judge
+Size/Fit,Positive,0.857,0.923,0.889,26,yes
