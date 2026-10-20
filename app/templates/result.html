@@ -5,7 +5,6 @@
   <p class="meta">
     {{ result.n }} review{{ '' if result.n == 1 else 's' }}
     {%- if result.pages %} from {{ result.pages }} page{{ '' if result.pages == 1 else 's' }}{% endif %}
-    {%- if result.platform %} on <code>{{ result.platform }}</code>{% endif %}
     {%- if result.source %} &middot; read by {{ result.source }}{% endif %}
     {%- if result.stopped_early %} &middot; stopped at the safety limit, there may be more{% endif %}
     &nbsp;&nbsp;<a class="back" href="/">check another product</a>
